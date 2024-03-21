@@ -1,5 +1,7 @@
 # **Google Maps QuickClick - Search to Maps**
 
+![alt text](https://raw.githubusercontent.com/ae0j/google-maps-quickclick/main/media/mapq.png)
+
 **Open Google Maps from the Search page by clicking on a map image.**
 
 This simple Chrome extension restores and enhances functionality for Google Search by making map images directly clickable, leading you instantly to the corresponding location in Google Maps. It also provides instant access to Google Maps via a new button for searches that display multiple locations.
