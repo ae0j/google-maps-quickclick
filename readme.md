@@ -1,4 +1,4 @@
-# **Google Maps QuickClick - Search to Maps**
+# **Google Search Location Fix**
 
 ![alt text](https://raw.githubusercontent.com/ae0j/google-maps-quickclick/main/media/mapq.png)
 
@@ -8,7 +8,7 @@ This simple Chrome extension restores and enhances functionality for Google Sear
 
 ## **Available in the Chrome Web Store**
 
-Easily install the Google Maps QuickClick extension directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/google-maps-quickclick-se/ippkeibgeeegemmdjhlhbdlcfjkgjann).
+Easily install the Google Search Location Fix extension directly from the [Chrome Web Store](https://chromewebstore.google.com/detail/google-maps-quickclick-se/ippkeibgeeegemmdjhlhbdlcfjkgjann).
 
 ## **Motivation**
 

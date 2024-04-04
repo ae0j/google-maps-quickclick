@@ -1,136 +1,185 @@
 function initScript() {
-  const mapImage1 =
-    document.querySelector("#lu_map") || // "Prague 3" or "Kubelikova" or "50.11262282409548, 14.451207636672475"
-    document.querySelector(".Lx2b0d") || // Nelson NSW 2765
-    document.querySelector(".zMVLkf.jdQ9hc") || // Czechia
-    document.querySelector(
-      'div[aria-label="Featured results"] img[src*="/maps/"]'
-    ); // Prague
+  const luMap = document.querySelector("#lu_map");
+  const otherStaticMap = document.querySelector(".ZqGZZ.xP81Pd  .Lx2b0d"); // "Prague 3" or "Kubelikova" or "50.11262282409548, 14.451207636672475"
+  const dynamicMapPlaces = document.querySelector(".e4meb.kyNbUb"); // "Unnamed Road, Al Diwaniyah, Al-Qādisiyyah Governorate, Iraq"
+  const dynamicMapCountry = document.querySelector(".zMVLkf.jdQ9hc .ZqGZZ"); // Czechia
 
-  const mapImage2 = document.querySelector(".e4meb.kyNbUb"); // "Unnamed Road, Al Diwaniyah, Al-Qādisiyyah Governorate, Iraq"
-  const mapImage3 = document.querySelector(".ZqGZZ.xP81Pd"); // Čechy
-
-  if (mapImage1 || mapImage2 || mapImage3) {
-    if (mapImage2) {
-      addMapLink(mapImage2);
-    } else if (mapImage1 && mapImage3) {
-      wrapMapImageWithLink(mapImage3);
-    }
-    if (mapImage1) {
-      wrapMapImageWithLink(mapImage1);
-    }
+  if (dynamicMapPlaces) {
+    addMapButtonPlaces();
+  }
+  if (dynamicMapCountry) {
+    addMapButtonCountry();
+  }
+  if (luMap) {
+    createLinkStaticMap(luMap);
+  }
+  if (otherStaticMap) {
+    createLinkStaticMap(otherStaticMap);
   }
 }
 
-function addMapLink(mapImage) {
-  if (document.querySelector(".custom-map-link")) return;
-
-  let searchQuery = getSearchQuery();
-  searchQuery = searchQuery.split(" ").join("+");
-  const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(
-    searchQuery
-  )}`;
-
-  const style = document.createElement("style");
-  const prefersDarkMode =
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-  const anchor = document.createElement("a");
-  anchor.href = mapsUrl;
-  anchor.target = "_blank";
-  anchor.textContent = "View on Google Maps";
-  anchor.className = "custom-hover";
-
-  if (prefersDarkMode) {
-    style.innerHTML = `
-    a.custom-hover:hover {
-      background: #2c303d !important;
-      text-decoration: none;
-    }
-  `;
-    anchor.style.cssText = `
-    font-size: 14px;
-    padding: 10px 20px;
-    border: 1px solid #dadce0;
-    border-radius: 20px;
-    border-color: #3c4043;
-    background: #202124;
-    text-decoration: none;
-    color: #f1f3f4;
-  `;
-  } else {
-    style.innerHTML = `
-    a.custom-hover:hover {
-      background: #f1f3f4;
-      text-decoration: none;
-    }
-  `;
-    anchor.style.cssText = `
-    font-size: 14px;
-    padding: 10px 20px;
-    border: 1px solid #dadce0;
-    border-radius: 20px;
-    color: #202124;
-    text-decoration: none;
-  `;
-  }
-
-  document.head.appendChild(style);
-  console.log(prefersDarkMode);
-  const newDiv = document.createElement("div");
-  newDiv.className = "custom-map-link";
-  newDiv.style.marginBottom = "8px";
-  newDiv.appendChild(anchor);
-  mapImage.appendChild(newDiv);
-}
-
-function wrapMapImageWithLink(mapImage) {
-  let searchQuery = getSearchQuery();
-  //searchQuery = searchQuery.split(" ").join("+");
-  const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(
-    searchQuery
-  )}`;
-
-  const anchor = document.createElement("a");
-  anchor.href = mapsUrl;
-  anchor.target = "_blank";
-  anchor.style.cursor = "pointer";
-
-  mapImage.parentNode.insertBefore(anchor, mapImage);
-  anchor.appendChild(mapImage);
-}
-
-function getSearchQuery() {
+function getPlaceQueryFromTitle() {
   let searchQuery = document.querySelector("title").innerText;
   let lastIndex = searchQuery.lastIndexOf(" -");
   if (lastIndex !== -1) {
     searchQuery = searchQuery.substring(0, lastIndex);
   }
+  return searchQuery;
+}
 
-  let addressElements = [
-    document.querySelector(".I6TXqe .SPZz6b span"),
-    document.querySelector(".PZPZlf.ssJ7i"), // A5 || Aalborg Airport
-    document.querySelector(".gqkR3b.hP3ybd span"), // "Eg, Address: 315 Falls Ave, Twin Falls, ID 83301, United States"
-    document.querySelector(".iAIpCb.PZPZlf"), // Road in England
-    document.querySelector(".PAq55d .aiAXrc"),
-    document.querySelector(".PAq55d .fMYBhe"),
-  ];
+function composeMapUrl(searchQuery, type) {
+  const mapsUrl = `https://www.google.com/maps/${type}/${encodeURIComponent(
+    searchQuery
+  )}`;
+  return mapsUrl;
+}
 
-  let addressParts = addressElements
-    .filter((elem) => elem !== null)
-    .map((elem) => elem.textContent);
+function addMapButtonPlaces() {
+  if (document.querySelector(".custom-map-link")) return;
+  const config = { childList: true, subtree: true };
 
-  let address = addressParts.join(" ");
+  const callback = function (mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.addedNodes) {
+        const mapImage = document.querySelector(".yXg2De");
+        if (mapImage) {
+          const searchQuery = getPlaceQueryFromTitle();
+          const mapsUrl = composeMapUrl(searchQuery, "search");
 
-  let postal = document.querySelector(".wwUB2c.PZPZlf.E75vKf"); // NSW 2765
-  let town = document.querySelector(".ZqGZZ.xP81Pd .Lx2b0d img[id='dimg_1']"); // Nelson NSW 2765
+          const prefersDarkMode =
+            window.matchMedia &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-  if (address && !postal && !town) {
-    searchQuery = address.replace("Map for ", "");
+          const anchor = document.createElement("a");
+          anchor.textContent = "Open Google Maps";
+          anchor.href = mapsUrl;
+          anchor.target = "_blank";
+
+          if (prefersDarkMode) {
+            anchor.style =
+              "display: inline-block; width: 100%; height: 100%; cursor: pointer; text-decoration: none; color: #D2D4D7; font-size: 14px; padding: 10px 9px; border-radius: 20px; background-color: #1F1F1F; box-shadow: 0 2px 4px rgba(0,0,0,0.2); text-align: center;";
+          } else {
+            anchor.style =
+              "display: inline-block; width: 100%; height: 100%; cursor: pointer; text-decoration: none; color: white; font-size: 14px; padding: 10px 9px; border-radius: 20px; background-color: rgba(0, 0, 0, 0.6); box-shadow: 0 2px 4px rgba(0,0,0,0.2); text-align: center;";
+          }
+
+          anchor.addEventListener(
+            "click",
+            function (event) {
+              event.stopPropagation();
+            },
+            false
+          );
+
+          const newDiv = document.createElement("div");
+          newDiv.className = "custom-map-link";
+          newDiv.style =
+            "position: absolute; top: 10px; left: 10px; z-index: 10; display: inline-block; box-sizing: border-box; width: auto; height: auto;";
+          newDiv.appendChild(anchor);
+
+          mapImage.style.position = "relative";
+          mapImage.appendChild(newDiv);
+
+          observer.disconnect();
+          break;
+        }
+      }
+    }
+  };
+
+  const observer = new MutationObserver(callback);
+  observer.observe(document.body, config);
+}
+
+function addMapButtonCountry() {
+  let searchQuery;
+  if (document.querySelector(".custom-map-link")) return;
+
+  if (document.querySelector("a.gL9Hy")) {
+    searchQuery = document.querySelector("a.gL9Hy").textContent;
+  } else {
+    searchQuery = getPlaceQueryFromTitle();
   }
 
-  return searchQuery;
+  const mapsUrl = composeMapUrl(searchQuery, "search");
+  const mapImage = document.querySelector(".ZqGZZ");
+  const anchor = document.createElement("a");
+  anchor.textContent = "Open Google Maps";
+  anchor.href = mapsUrl;
+  anchor.target = "_blank";
+  anchor.style =
+    "display: inline-block; width: 100%; height: 100%; cursor: pointer; text-decoration: none; color: white; font-size: 14px; padding: 9px 8px; border-radius: 20px; background-color: rgba(0, 0, 0, 0.6); box-shadow: 0 2px 4px rgba(0,0,0,0.2); text-align: center;";
+
+  anchor.addEventListener(
+    "click",
+    function (event) {
+      event.stopPropagation();
+    },
+    false
+  );
+
+  const newDiv = document.createElement("div");
+  newDiv.className = "custom-map-link";
+  newDiv.style =
+    "position: absolute; top: 12px; left: 10px; z-index: 10; display: inline-block; box-sizing: border-box; width: auto; height: auto;";
+  newDiv.appendChild(anchor);
+
+  mapImage.style.position = "relative";
+  mapImage.appendChild(newDiv);
+}
+
+function createLinkStaticMap(mapImage) {
+  let searchQuery;
+  let anchor;
+  let mapUrl;
+
+  // Check if precise address with link exists
+  let addressSpan = document.querySelector(".gqkR3b.hP3ybd a");
+  if (addressSpan) {
+    mapUrl = addressSpan.href;
+  }
+  // Check if corrected location name exists eg. "Showing results for Nelson NSW 2765 ..."
+  else if (
+    document.querySelector("a.gL9Hy") &&
+    document.querySelector("a.spell_orig")
+  ) {
+    searchQuery = document.querySelector("a.gL9Hy").textContent;
+    mapUrl = composeMapUrl(searchQuery, "search");
+  }
+  // Check if small lu_map on a right side exists
+  else if (
+    document.querySelector(".I6TXqe .SPZz6b span") ||
+    document.querySelector(".wwUB2c.PZPZlf.E75vKf")
+  ) {
+    mapUrl = extractLocationNameFromLuMap();
+  } else {
+    searchQuery = getPlaceQueryFromTitle();
+    mapUrl = composeMapUrl(searchQuery, "search");
+  }
+  anchor = document.createElement("a");
+  anchor.href = mapUrl;
+  anchor.target = "_blank";
+  anchor.style.cursor = "pointer";
+  mapImage.parentNode.insertBefore(anchor, mapImage);
+  anchor.appendChild(mapImage);
+}
+
+function extractLocationNameFromLuMap() {
+  let mapUrl;
+  let addressParts;
+  let address;
+  let smallLuMapRight = [
+    document.querySelector(".I6TXqe .SPZz6b span"), // Main address h2
+    document.querySelector(".wwUB2c.PZPZlf.E75vKf"), // Road in the United Kingdom || new || Municipality in Norway || Postal code in Australia
+  ];
+
+  addressParts = smallLuMapRight
+    .filter((elem) => elem !== null)
+    .map((elem) => elem.textContent);
+  address = addressParts.join(" ");
+  mapUrl = composeMapUrl(address, "search");
+
+  return mapUrl;
 }
 
 if (document.readyState === "loading") {
