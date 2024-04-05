@@ -1,6 +1,6 @@
 # **Google Search Location Fix**
 
-![alt text](https://raw.githubusercontent.com/ae0j/google-maps-quickclick/main/media/mapq.png)
+![alt text](https://raw.githubusercontent.com/ae0j/google-maps-quickclick/main/media/mapq2.png)
 
 **Open Google Maps from the Search page by clicking on a map image.**
 
